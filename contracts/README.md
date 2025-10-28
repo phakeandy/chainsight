@@ -1,57 +1,107 @@
-# Sample Hardhat 3 Beta Project (`node:test` and `viem`)
+# Chainsight 智能合约项目
 
-This project showcases a Hardhat 3 Beta project using the native Node.js test runner (`node:test`) and the `viem` library for Ethereum interactions.
+本项目是 Chainsight 去中心化信息溯源平台的智能合约部分，使用 Hardhat 3 Beta 开发，包含 `node:test` 测试框架和 `viem` 库用于以太坊交互。
 
-To learn more about the Hardhat 3 Beta, please visit the [Getting Started guide](https://hardhat.org/docs/getting-started#getting-started-with-hardhat-3). To share your feedback, join our [Hardhat 3 Beta](https://hardhat.org/hardhat3-beta-telegram-group) Telegram group or [open an issue](https://github.com/NomicFoundation/hardhat/issues/new) in our GitHub issue tracker.
+## 项目概述
 
-## Project Overview
+本项目包含以下智能合约：
 
-This example project includes:
+### EvidenceAnchor 合约
+- **功能**: 去中心化证据锚定
+- **描述**: 极简版本的证据锚定合约，只负责在区块链上记录证据的核心信息（IPFS CID、提交者地址、时间戳）
+- **特点**:
+  - 任何人都可以提交证据
+  - 防止重复CID提交
+  - 提供完整的查询功能
+  - AI分析结果和语义关联存储在链下数据库
 
-- A simple Hardhat configuration file.
-- Foundry-compatible Solidity unit tests.
-- TypeScript integration tests using [`node:test`](nodejs.org/api/test.html), the new Node.js native test runner, and [`viem`](https://viem.sh/).
-- Examples demonstrating how to connect to different types of networks, including locally simulating OP mainnet.
 
-## Usage
+## 技术栈
 
-### Running Tests
+- Hardhat 3 Beta 开发框架
+- Solidity 0.8.28
+- TypeScript 集成测试
+- `node:test` 原生测试运行器
+- `viem` 以太坊交互库
+- OpenZeppelin 合约库
 
-To run all the tests in the project, execute the following command:
+## 使用方法
 
-```shell
-npx hardhat test
-```
+### 运行测试
 
-You can also selectively run the Solidity or `node:test` tests:
-
-```shell
-npx hardhat test solidity
-npx hardhat test nodejs
-```
-
-### Make a deployment to Sepolia
-
-This project includes an example Ignition module to deploy the contract. You can deploy this module to a locally simulated chain or to Sepolia.
-
-To run the deployment to a local chain:
+运行项目中的所有测试：
 
 ```shell
-npx hardhat ignition deploy ignition/modules/Counter.ts
+pnpm hardhat test
 ```
 
-To run the deployment to Sepolia, you need an account with funds to send the transaction. The provided Hardhat configuration includes a Configuration Variable called `SEPOLIA_PRIVATE_KEY`, which you can use to set the private key of the account you want to use.
-
-You can set the `SEPOLIA_PRIVATE_KEY` variable using the `hardhat-keystore` plugin or by setting it as an environment variable.
-
-To set the `SEPOLIA_PRIVATE_KEY` config variable using `hardhat-keystore`:
+运行特定合约的测试：
 
 ```shell
-npx hardhat keystore set SEPOLIA_PRIVATE_KEY
+pnpm hardhat test test/EvidenceAnchor.ts
+pnpm hardhat test test/Counter.ts
 ```
 
-After setting the variable, you can run the deployment with the Sepolia network:
+### 编译合约
+
+编译所有智能合约：
 
 ```shell
-npx hardhat ignition deploy --network sepolia ignition/modules/Counter.ts
+pnpm hardhat compile
 ```
+
+### 部署合约
+
+#### 部署到本地模拟网络
+
+部署 EvidenceAnchor 合约到 hardhatMainnet 网络：
+
+```shell
+pnpm hardhat ignition deploy ./ignition/modules/EvidenceAnchor.ts --network hardhatMainnet
+```
+
+
+#### 部署到 Sepolia 测试网
+
+部署到 Sepolia 测试网需要配置环境变量：
+
+1. 设置 Sepolia RPC URL 和私钥：
+
+```shell
+# 使用 hardhat-keystore 设置私钥
+pnpm hardhat keystore set SEPOLIA_PRIVATE_KEY
+
+# 或者设置环境变量
+export SEPOLIA_RPC_URL="你的 Sepolia RPC URL"
+export SEPOLIA_PRIVATE_KEY="你的私钥"
+```
+
+2. 部署到 Sepolia：
+
+```shell
+pnpm hardhat ignition deploy ./ignition/modules/EvidenceAnchor.ts --network sepolia
+```
+
+## 合约说明
+
+### EvidenceAnchor 合约
+
+#### 核心功能
+
+- `anchorEvidence(string _ipfsCid)`: 锚定证据，返回证据ID
+- `getEvidenceIdByCid(string _ipfsCid)`: 根据IPFS CID获取证据ID
+- `getEvidence(uint256 _evidenceId)`: 获取证据详情
+- `getEvidenceCount()`: 获取证据总数
+
+#### 事件
+
+- `EvidenceAnchored(uint256 evidenceId, string ipfsCid, address submitter, uint256 timestamp)`: 证据锚定事件
+
+#### 设计理念
+
+EvidenceAnchor 合约采用极简设计，只负责在区块链上记录最核心、不可变的证据信息：
+- IPFS 内容哈希 (CID)
+- 提交者地址
+- 时间戳
+
+AI分析结果、语义关联等可变数据存储在链下数据库，确保区块链只承担其最擅长的不可变记录功能。
