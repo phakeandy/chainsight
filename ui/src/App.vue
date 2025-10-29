@@ -1,12 +1,15 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import SiteNavbar from './components/SiteNavbar.vue'
+import InputTextArea from './components/InputTextArea.vue'
+</script>
 
 <template>
-  <h1>You did it!</h1>
-  <p>
-    Visit <a href="https://vuejs.org/" target="_blank" rel="noopener">vuejs.org</a> to read the
-    documentation
-  </p>
-  <iconify-icon icon="tabler:arrow-left-bar"></iconify-icon>
+  <header class="mt-4">
+    <SiteNavbar />
+  </header>
+  <main>
+    <InputTextArea />
+  </main>
 </template>
 
 <style scoped></style>
