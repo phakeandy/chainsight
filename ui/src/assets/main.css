@@ -1,1 +1,5 @@
 @import 'tailwindcss';
+
+::selection {
+  @apply bg-neutral-400;
+}
