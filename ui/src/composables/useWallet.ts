@@ -52,6 +52,15 @@ export function useWallet() {
       const [address] = await client.requestAddresses()
       account.value = address
 
+      // 只在开发环境中打印日志
+      if (import.meta.env.DEV) {
+        console.log('钱包连接成功:', {
+          address: address,
+          chainId: client.chain.id,
+          timestamp: new Date().toISOString(),
+        })
+      }
+
       // 尝试切换到 Hardhat 网络 (如果钱包支持)
       try {
         await client.switchChain({ id: hardhat.id })
