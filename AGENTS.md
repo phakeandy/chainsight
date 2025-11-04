@@ -20,3 +20,13 @@ This file provides guidance to agents when working with code in this repository.
 - 所有模块必须从各自目录运行命令，不能从根目录运行
 - 合约使用 Solidity 0.8.28，生产环境启用优化器
 - 项目架构：API (FastAPI + SQLAlchemy Core) + Contracts (Hardhat + Viem) + UI (Vue3 + Viem)
+
+## 前端设计风格
+
+请使用以下风格：
+
+- 平面化，禁止巨大的阴影
+- 黑白色调简约风格，如 tailwind 的颜色相关的实用类：`bg-white text-black border-gray-300` 等
+- 响应式设计，适配移动端和桌面端
+
+**禁止**在没有明确要求的前提下添加除了黑白色调以外的颜色。
