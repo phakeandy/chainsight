@@ -15,10 +15,10 @@
       ></textarea>
       <button
         @click="handleSubmit"
-        :disabled="!textContent.trim()"
+        :disabled="!textContent.trim() || isLoading"
         class="rounded-lg bg-gray-800 px-6 py-2 font-semibold text-white shadow-md transition duration-150 ease-in-out hover:bg-gray-900 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
       >
-        提交
+        {{ isLoading ? '提交中...' : '提交' }}
       </button>
     </div>
   </section>
@@ -29,36 +29,48 @@ import { ref } from 'vue'
 
 // 响应式变量，用于存储文本内容
 const textContent = ref('')
+const isLoading = ref(false) // 添加加载状态
 
 /**
  * 处理证据提交
- * 阶段三只需要实现到 `构建证据JSON对象`即可
  */
-const handleSubmit = () => {
+const handleSubmit = async () => {
   const content = textContent.value.trim()
-
-  if (!content) {
-    console.warn('提交内容为空，操作取消。')
+  if (!content || isLoading.value) {
     return
   }
 
-  // 1. 构建证据 JSON 对象 (FR-01)
-  const evidence = {
-    content: content,
-    metadata: {
-      timestamp: new Date().toISOString(), // ISO 8601 格式时间戳
-      submitter: '0x...', // 占位符，后续将替换为连接的钱包地址
-      version: '1.0',
-    },
+  isLoading.value = true
+
+  try {
+    // 使用相对路径，Vite 代理将处理请求转发到 http://localhost:8000/api/v1/evidence
+    const response = await fetch('/api/v1/evidence', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ content: content }),
+    })
+
+    if (!response.ok) {
+      const errorData = await response.json()
+      throw new Error(errorData.detail || 'API request failed')
+    }
+
+    const result = await response.json()
+    const cid = result.cid
+
+    console.log(`✅ 证据上传成功! IPFS CID: ${cid}`)
+    alert(`存证成功！IPFS CID: ${cid}`) // 临时用 alert 提示
+
+    textContent.value = ''
+
+  } catch (error) {
+    console.error('提交失败:', error)
+    alert(`提交失败: ${(error as Error).message}`)
+  } finally {
+    isLoading.value = false
   }
-
-  // 2. 打印 JSON 对象以供验证
-  console.log('--- 证据 JSON 对象已构建 ---')
-  console.log(evidence)
-  console.log('-----------------------------')
-
-  // 3. 清空文本框
-  textContent.value = ''
 }
 </script>
 
