@@ -1,0 +1,100 @@
+services:
+  proxy:
+    image: traefik:3
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "80:80"
+      - "8090:8080"
+    command:
+      - --providers.docker
+      - --providers.docker.network=traefik-public
+      # Add a constraint to only use services with the label for this stack
+      - --providers.docker.constraints=Label(`traefik.constraint-label`, `traefik-public`)
+      # Do not expose all Docker services, only the ones explicitly exposed
+      - --providers.docker.exposedbydefault=false
+      - --entrypoints.http.address=:80
+      - --entrypoints.https.address=:443
+      - --accesslog
+      - --log
+      # - --log.level=DEBUG
+      - --api
+      # 开发时需要开启仪表盘
+      - --api.insecure=true
+    labels:
+      # - traefik.enable=true
+      # - traefik.constraint-label=traefik-public
+      # - traefik.http.routers.dashboard.service=api@internal
+      # - traefik.http.routers.dashboard.rule=Host(traefix.`${DOMAIN?Variable not set}`)
+      # - traefik.http.routers.dashboard.entrypoints=http
+      - "traefik.enable=true"
+      - "traefik.constraint-label=traefik-public"
+      - "traefik.http.routers.dashboard.rule=Host(`traefik.${DOMAIN?Variable not set}`)"
+      - "traefik.http.routers.dashboard.entrypoints=http"
+      - "traefik.http.routers.dashboard.service=api@internal"
+      # 开发时需要关闭https重定向到http
+      - traefik.http.middlewares.https-redirect.contenttype.autodetect=false
+    networks:
+      - traefik-public
+      - default
+
+  db:
+    restart: "no"
+    ports:
+      - "5432:5432"
+
+  api:
+    restart: "no"
+    ports:
+      - "8000:8000"
+    build:
+      context: ./api
+    # command: sleep infinity  # Infinite loop to keep container alive doing nothing
+    command:
+      - fastapi
+      - run
+      - --reload
+      - "app/main.py"
+    develop:
+      watch:
+        - path: ./api
+          action: sync
+          target: /app
+          ignore:
+            - ./api/.venv
+            - .venv
+        - path: ./api/pyproject.toml
+          action: rebuild
+    # TODO: remove once coverage is done locally
+    volumes:
+      - ./api/htmlcov:/app/htmlcov
+
+  ipfs:
+    image: ipfs/kubo:v0.28.0
+    ports:
+      - "4001:4001" # p2p
+      - "5001:5001" # API
+      - "8080:8080" # Gateway
+    volumes:
+      - ipfs-data:/data/ipfs
+    networks:
+      - default
+
+  ui:
+    restart: "no"
+    ports:
+      - "5173:80"
+    build:
+      context: ./ui
+      args:
+        - VITE_API_URL=http://localhost:8000
+        - NODE_ENV=development
+
+volumes:
+  app-db-data:
+  ipfs-data:
+
+
+networks:
+  traefik-public:
+    external: false
