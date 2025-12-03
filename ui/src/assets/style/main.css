@@ -1,5 +1,9 @@
 @layer reset, composition;
 
+@import './utilities.css';
+@import './composition/index.css' layer composition;
+@import './reset.css' layer reset;
+
 :root {
   --color-primary: #008080;
 }
