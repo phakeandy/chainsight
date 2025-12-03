@@ -1,0 +1,5 @@
+@layer reset, composition;
+
+:root {
+  --color-primary: #008080;
+}

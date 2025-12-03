@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { RouterView } from 'vue-router'
+import TheSidebar from './components/TheSidebar.vue'
 
 defineOptions({
   name: 'TwoColumnsLayout',
@@ -8,9 +9,9 @@ defineOptions({
 
 <template>
   <div class="sidebar">
-    <RouterView></RouterView>
+    <TheSidebar />
   </div>
   <div class="content">
-    <RouterView></RouterView>
+    <RouterView />
   </div>
 </template>
