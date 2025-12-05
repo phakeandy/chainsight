@@ -1,3 +1,5 @@
 <template>
-  <div class=""></div>
+  <div>侧边栏</div>
 </template>
+
+<style scoped></style>
