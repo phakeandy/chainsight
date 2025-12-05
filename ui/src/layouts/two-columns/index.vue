@@ -1,20 +1,17 @@
 <script lang="ts" setup>
 import { RouterView } from 'vue-router'
-import { ref } from 'vue'
 import TheSidebar from './components/TheSidebar.vue'
+import { useSidebarStore } from '@/stores/sidebar'
 
 defineOptions({
   name: 'TwoColumnsLayout',
 })
-const isSidebarOpen = ref(true)
 
-// function toggleSidebar() {
-//   isSidebarOpen.value = !isSidebarOpen.value
-// }
+const sidebarStore = useSidebarStore()
 </script>
 
 <template>
-  <div class="with-sidebar" :data-state="isSidebarOpen ? 'open' : 'closed'">
+  <div class="wrapper with-sidebar min-h-dvh" :data-state="sidebarStore.isOpen ? 'open' : 'closed'">
     <aside>
       <TheSidebar />
     </aside>
@@ -26,23 +23,30 @@ const isSidebarOpen = ref(true)
 
 <style scoped>
 .with-sidebar {
-  display: grid;
-  grid-template-columns: 300px 1fr;
+  --_sidebar-width: 300px;
 
-  & > aside {
+  display: grid;
+  grid-template-columns: 0 1fr;
+
+  @media (min-width: 768px) {
+    grid-template-columns: var(--_sidebar-width) 1fr;
+  }
+
+  &[data-state='open'] {
+    grid-template-columns: var(--_sidebar-width) 1fr;
   }
 }
 
+.wrapper {
+  transition: grid-template-columns 0.3s ease;
+  position: relative;
+}
+
 aside {
-  width: 100%;
-  height: 100%;
   background-color: var(--color-surface-200);
-  background-color: pink;
 }
 
 main {
-  height: 100%;
   background-color: var(--color-surface-200);
-  background-color: cyan;
 }
 </style>

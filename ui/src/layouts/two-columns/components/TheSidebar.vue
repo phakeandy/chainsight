@@ -1,5 +1,9 @@
 <template>
-  <div>侧边栏</div>
+  <div class="sidebar">侧边栏</div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.sidebar {
+  border: var(--border-sidebar);
+}
+</style>
