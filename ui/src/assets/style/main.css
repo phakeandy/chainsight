@@ -16,22 +16,36 @@ body {
   background-color: var(--color-surface-100);
 }
 
-/* 确保 Vue 根元素占满全屏 */
 #app {
   min-height: 100dvh;
+}
+
+textarea {
+  width: 100%;
+  field-sizing: content; /* 核心：让 textarea 像 div 一样随内容自动撑高 */
+  max-height: 200px; /* 超过这个高度后再出滚动条 */
+  overflow-y: hidden;
+  border: none;
+  resize: none;
+  overflow: auto;
+  outline: none;
+  background: transparent;
+  font-size: var(--step-1);
 }
 
 .btn {
   --btn-bg: var(--color-surface-200);
   --btn-content: var(--color-text);
+  --padding: var(--space-s);
 
   cursor: pointer;
   background-color: var(--btn-bg);
   border-radius: var(--border-radius-button);
-  padding: var(--space-s);
+  padding: var(--padding);
   border: none;
   display: inline-flex;
   color: var(--btn-content);
+  white-space: nowrap;
 
   &.primary {
     --btn-bg: var(--color-text);

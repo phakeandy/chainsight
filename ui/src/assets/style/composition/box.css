@@ -2,8 +2,9 @@
   --_bg: transparent;
   --_text: var(--color-text);
   --_border: transparent;
+  --_padding: var(--space-s);
 
-  padding: var(--space-s);
+  padding: var(--_padding);
   background-color: var(--_bg);
   color: var(--_text);
   border: 1px solid var(--_border);
