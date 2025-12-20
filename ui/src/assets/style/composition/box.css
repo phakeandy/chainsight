@@ -1,18 +1,18 @@
 .box {
-  --_bg: transparent;
-  --_text: var(--color-text);
-  --_border: transparent;
-  --_padding: var(--space-s);
+  --bg-color: transparent;
+  --text-color: var(--color-text);
+  --border-color: transparent;
+  --padding: var(--space-s);
 
-  padding: var(--_padding);
-  background-color: var(--_bg);
-  color: var(--_text);
-  border: 1px solid var(--_border);
+  padding: var(--padding);
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
 
   gap: 0.5ch;
 }
 
 .box.primary {
-  --_bg: var(--color-neutral);
-  --_text: var(--color-surface-200);
+  --bg-color: var(--color-neutral);
+  --text-color: var(--color-surface-200);
 }
