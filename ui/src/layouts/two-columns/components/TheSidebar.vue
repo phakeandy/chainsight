@@ -5,7 +5,9 @@
       <nav></nav>
     </section>
     <section class="bottom">
-      <button>helo</button>
+      <div class="stack box">
+        <button class="box"></button>
+      </div>
     </section>
   </div>
 </template>

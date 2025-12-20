@@ -1,0 +1,10 @@
+.box {
+  --_padding: var(--space-s);
+
+  padding: var(--_padding);
+  /* background-color: var(--color-surface-200); */
+  background-color: transparent;
+
+  border: none;
+  color: var(--color-neutral);
+}

@@ -20,3 +20,15 @@ body {
 #app {
   min-height: 100dvh;
 }
+
+button {
+  --btn-bg: var(--color-surface-200);
+  --btn-content: var(--color-text);
+
+  cursor: pointer;
+  background-color: var(--btn-bg);
+  border-radius: var(--border-radius-button);
+  &:hover {
+    background-color: color-mix(in srgb, var(--btn-bg), var(--btn-content) 5%);
+  }
+}
