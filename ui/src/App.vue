@@ -1,15 +1,7 @@
-<script setup lang="ts">
-import SiteNavbar from './components/SiteNavbar.vue'
-import InputTextArea from './components/InputTextArea.vue'
-</script>
+<script setup lang="ts"></script>
 
 <template>
-  <header class="mt-4">
-    <SiteNavbar />
-  </header>
-  <main>
-    <InputTextArea />
-  </main>
+  <RouterView />
 </template>
 
 <style scoped></style>

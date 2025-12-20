@@ -1,0 +1,10 @@
+.icon {
+  font-size: 1.2rem;
+  fill: currentColor;
+}
+
+.with-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 1ch;
+}
