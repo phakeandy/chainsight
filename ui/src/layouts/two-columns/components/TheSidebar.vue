@@ -6,7 +6,10 @@
     </section>
     <section class="bottom">
       <div class="stack box">
-        <button class="box"></button>
+        <button class="box with-icon">
+          <iconify-icon icon="tabler:login" class="icon"></iconify-icon>
+          <span> 登陆</span>
+        </button>
       </div>
     </section>
   </div>
