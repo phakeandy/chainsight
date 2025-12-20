@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import InputArea from './components/InputArea.vue'
+import InputArea from '@/components/views/home/InputArea.vue'
 defineOptions({
   name: 'HomePage',
 })

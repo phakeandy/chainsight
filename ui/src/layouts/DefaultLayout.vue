@@ -2,7 +2,7 @@
 import { useSidebarStore } from '@/stores/sidebar'
 import { breakpointsTailwind, useBreakpoints } from '@vueuse/core'
 import { RouterView } from 'vue-router'
-import AppSidebar from './components/AppSidebar.vue'
+import Sidebar from '@/components/layout/default/AppSidebar.vue'
 
 defineOptions({
   name: 'TwoColumnsLayout',
@@ -19,7 +19,7 @@ sidebarStore.setOpen(!isMobile) // 设置默认状态：移动端关闭，PC端�
 <template>
   <div class="wrapper with-sidebar min-h-dvh" :data-state="sidebarStore.isOpen ? 'open' : 'closed'">
     <aside>
-      <AppSidebar />
+      <Sidebar />
     </aside>
     <main>
       <RouterView />

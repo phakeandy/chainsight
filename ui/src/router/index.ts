@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import TwoColumnsLayout from '@/layouts/two-columns/index.vue'
+import TwoColumnsLayout from '@/layouts/DefaultLayout.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -7,7 +7,7 @@ const router = createRouter({
     {
       path: '/',
       component: TwoColumnsLayout,
-      children: [{ path: '', component: () => import('@/views/home/index.vue') }],
+      children: [{ path: '', component: () => import('@/views/HomeView.vue') }],
     },
   ],
 })
