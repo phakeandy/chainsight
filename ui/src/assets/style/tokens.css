@@ -24,7 +24,7 @@
 
   --border-radius-button: 0.75rem;
   --border-radius-field: 1rem;
-  --border-sidebar: inset 0 0 0 1px oklch(0 0 0 / 0.1);
+  --border-sidebar: 1px solid oklch(0 0 0 / 0.1);
 
   /* @link https://utopia.fyi/type/calculator?c=360,14,1.2,1240,14,1.25,5,2,&s=0.75|0.5|0.2,1.5|2|3,s-l&g=s,l,xl,12 */
   --step--2: clamp(0.56rem, 0.6271rem + -0.0866vw, 0.6076rem);

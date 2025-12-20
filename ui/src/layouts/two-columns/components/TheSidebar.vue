@@ -1,9 +1,34 @@
+<script lang="ts" setup></script>
 <template>
-  <div class="sidebar">侧边栏</div>
+  <div class="sidebar">
+    <section>
+      <nav></nav>
+    </section>
+    <section class="bottom">
+      <button>helo</button>
+    </section>
+  </div>
 </template>
 
 <style scoped>
 .sidebar {
-  border: var(--border-sidebar);
+  border-right: var(--border-sidebar);
+  height: 100%;
+  display: grid;
+  grid-template:
+    'main' 1fr
+    'bottom' auto
+    / 1fr;
+
+  & .bottom {
+    grid-area: bottom;
+  }
+  & .main {
+    grid-area: main;
+  }
+}
+
+.bottom {
+  border-top: var(--border-sidebar);
 }
 </style>

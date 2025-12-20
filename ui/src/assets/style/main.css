@@ -2,8 +2,8 @@
 
 @import './utilities.css';
 @import './tokens.css';
-@import './composition/index.css' layer composition;
-@import './reset.css' layer reset;
+@import './composition/index.css' layer(composition);
+@import './reset.css' layer(reset);
 
 body {
   margin: 0;

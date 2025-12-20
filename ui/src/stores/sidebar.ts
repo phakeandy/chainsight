@@ -9,6 +9,10 @@ export const useSidebarStore = defineStore('sidebar', () => {
     _isOpen.value = !_isOpen.value
   }
 
+  function setOpen(value: boolean) {
+    _isOpen.value = value
+  }
+
   function $reset() {
     _isOpen.value = true
   }
@@ -16,6 +20,7 @@ export const useSidebarStore = defineStore('sidebar', () => {
   return {
     isOpen,
     toggle,
+    setOpen,
     $reset,
   }
 })

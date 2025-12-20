@@ -1,13 +1,19 @@
 <script lang="ts" setup>
+import { useSidebarStore } from '@/stores/sidebar'
+import { breakpointsTailwind, useBreakpoints } from '@vueuse/core'
 import { RouterView } from 'vue-router'
 import TheSidebar from './components/TheSidebar.vue'
-import { useSidebarStore } from '@/stores/sidebar'
 
 defineOptions({
   name: 'TwoColumnsLayout',
 })
 
 const sidebarStore = useSidebarStore()
+
+const breakpoints = useBreakpoints(breakpointsTailwind)
+const isMobile = breakpoints.isSmaller('md') //	md: 48rem (768px)
+
+sidebarStore.setOpen(!isMobile) // 设置默认状态：移动端关闭，PC端打开
 </script>
 
 <template>
@@ -28,7 +34,7 @@ const sidebarStore = useSidebarStore()
   display: grid;
   grid-template-columns: 0 1fr;
 
-  @media (min-width: 768px) {
+  @media (min-width: 48rem) {
     grid-template-columns: var(--_sidebar-width) 1fr;
   }
 
