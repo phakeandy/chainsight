@@ -21,14 +21,24 @@ body {
   min-height: 100dvh;
 }
 
-button {
+.btn {
   --btn-bg: var(--color-surface-200);
   --btn-content: var(--color-text);
 
   cursor: pointer;
   background-color: var(--btn-bg);
   border-radius: var(--border-radius-button);
+  padding: var(--space-s);
+  border: none;
+  display: inline-flex;
+  color: var(--btn-content);
+
+  &.primary {
+    --btn-bg: var(--color-text);
+    --btn-content: var(--color-surface-200);
+  }
+
   &:hover {
-    background-color: color-mix(in srgb, var(--btn-bg), var(--btn-content) 5%);
+    background-color: color-mix(in oklch, var(--btn-bg), var(--btn-content) 5%);
   }
 }

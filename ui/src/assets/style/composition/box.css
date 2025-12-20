@@ -1,10 +1,17 @@
 .box {
-  --_padding: var(--space-s);
+  --_bg: transparent;
+  --_text: var(--color-text);
+  --_border: transparent;
 
-  padding: var(--_padding);
-  /* background-color: var(--color-surface-200); */
-  background-color: transparent;
+  padding: var(--space-s);
+  background-color: var(--_bg);
+  color: var(--_text);
+  border: 1px solid var(--_border);
 
-  border: none;
-  color: var(--color-neutral);
+  gap: 0.5ch;
+}
+
+.box.primary {
+  --_bg: var(--color-neutral);
+  --_text: var(--color-surface-200);
 }
