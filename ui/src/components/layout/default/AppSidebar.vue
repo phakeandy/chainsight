@@ -1,8 +1,11 @@
 <script lang="ts" setup>
 import { useWallet } from '@/composables/useWallet'
-import { computed } from 'vue'
+import { toast } from '@/utils/toast'
+import { computed, onMounted, ref, watch } from 'vue'
 
 const { account, isConnecting, error, isWalletInstalled, connectWallet } = useWallet()
+
+const previousAccount = ref<typeof account.value>()
 
 const buttonText = computed(() => {
   if (isConnecting.value) {
@@ -11,15 +14,47 @@ const buttonText = computed(() => {
   return account.value ? '登出' : '登录'
 })
 
+// 监听账户变化，显示连接成功的 toast
+watch(account, (newAccount, oldAccount) => {
+  // 从无账户到有账户，表示连接成功
+  if (!oldAccount && newAccount) {
+    toast.success('钱包连接成功！')
+  }
+  // 从有账户到无账户，表示登出
+  else if (oldAccount && !newAccount) {
+    previousAccount.value = oldAccount
+  }
+})
+
+// 初始化前一个账户状态
+previousAccount.value = account.value
+
 const handleClick = async () => {
   if (!account.value) {
     await connectWallet()
+    // 如果连接失败，错误状态会通过 useWallet 管理，这里不需要额外处理
   } else {
     // 登出逻辑：清空账户状态
     account.value = undefined
+    toast.info('已登出')
   }
 }
+
+// 检查钱包安装状态
+onMounted(() => {
+  if (!isWalletInstalled.value) {
+    toast.warning('请安装 MetaMask 或其他浏览器钱包')
+  }
+})
+
+// 监听错误状态
+watch(error, (newError) => {
+  if (newError) {
+    toast.error(newError)
+  }
+})
 </script>
+
 <template>
   <div class="sidebar">
     <section>
@@ -36,12 +71,13 @@ const handleClick = async () => {
       <nav class="stack box">
         <button class="btn" :disabled="isConnecting" @click="handleClick">
           <span class="with-icon">
-            <iconify-icon :icon="account ? 'tabler:logout' : 'tabler:login'" class="icon"></iconify-icon>
+            <iconify-icon
+              :icon="account ? 'tabler:logout' : 'tabler:login'"
+              class="icon"
+            ></iconify-icon>
             <span>{{ buttonText }}</span>
           </span>
         </button>
-        <p v-if="error" class="error-text">{{ error }}</p>
-        <p v-if="!isWalletInstalled" class="error-text">请安装 MetaMask 或其他浏览器钱包</p>
       </nav>
     </section>
   </div>
@@ -67,12 +103,5 @@ const handleClick = async () => {
 
 .bottom {
   border-top: var(--border-sidebar);
-}
-
-.error-text {
-  font-size: var(--step--1);
-  color: var(--color-text-dim);
-  margin: 0;
-  padding: 0;
 }
 </style>

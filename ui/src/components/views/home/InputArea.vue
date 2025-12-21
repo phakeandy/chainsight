@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { toast } from '@/utils/toast'
 
 const textContent = ref('')
 const isLoading = ref(false)
-const submitError = ref<string | null>(null)
 
 const handleSubmit = async () => {
   const content = textContent.value.trim()
@@ -12,7 +12,6 @@ const handleSubmit = async () => {
   }
 
   isLoading.value = true
-  submitError.value = null
 
   try {
     const response = await fetch('/api/v1/evidence', {
@@ -32,14 +31,12 @@ const handleSubmit = async () => {
     const cid = result.cid
 
     console.log(`✅ 证据上传成功! IPFS CID: ${cid}`)
-    alert(`存证成功！IPFS CID: ${cid}`)
+    toast.success(`存证成功！IPFS CID: ${cid}`)
 
     textContent.value = ''
-
   } catch (error) {
     console.error('提交失败:', error)
-    submitError.value = (error as Error).message
-    alert(`提交失败: ${(error as Error).message}`)
+    toast.error(`提交失败: ${(error as Error).message}`)
   } finally {
     isLoading.value = false
   }
@@ -64,8 +61,8 @@ const handleKeyup = (event: KeyboardEvent) => {
         placeholder="请输入内容..."
         aria-label="输入消息"
       ></textarea>
-      <button 
-        class="btn with-icon" 
+      <button
+        class="btn with-icon"
         type="button"
         :disabled="!textContent.trim() || isLoading"
         @click="handleSubmit"
@@ -73,7 +70,6 @@ const handleKeyup = (event: KeyboardEvent) => {
         <iconify-icon icon="tabler:send-2" class="icon"></iconify-icon>
       </button>
     </div>
-    <p v-if="submitError" class="error-text">{{ submitError }}</p>
   </div>
 </template>
 
@@ -104,13 +100,5 @@ const handleKeyup = (event: KeyboardEvent) => {
 .btn {
   --padding: var(--space-xs);
   border-radius: 50%;
-}
-
-.error-text {
-  font-size: var(--step--1);
-  color: var(--color-text-dim);
-  margin: var(--space-xs) 0 0 0;
-  padding: 0;
-  text-align: center;
 }
 </style>
