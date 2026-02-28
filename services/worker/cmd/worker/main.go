@@ -192,12 +192,17 @@ func processNotification(ctx context.Context, db *pgx.Conn, cfg config, payload 
 		return fmt.Errorf("load evidence failed: %w", err)
 	}
 
-	if _, err := db.Exec(ctx, `
+	jobResult, err := db.Exec(ctx, `
 		update chainsight.processing_job
 		set status = 'in_progress', attempts = attempts + 1, updated_at = now(), error_message = null
 		where evidence_id = $1::uuid and job_type = 'evidence_pipeline' and status in ('pending', 'failed')
-	`, ev.ID); err != nil {
+	`, ev.ID)
+	if err != nil {
 		return fmt.Errorf("mark processing_job in_progress failed: %w", err)
+	}
+	if jobResult.RowsAffected() == 0 {
+		log.Printf("skip evidence_id=%s because processing_job is already in terminal state", ev.ID)
+		return nil
 	}
 
 	cid, err := uploadEvidenceToIPFS(ctx, cfg.IPFSAPIURL, ev.Content)
@@ -206,13 +211,18 @@ func processNotification(ctx context.Context, db *pgx.Conn, cfg config, payload 
 		return fmt.Errorf("ipfs upload failed: %w", err)
 	}
 
-	if _, err := db.Exec(ctx, `
+	evidenceResult, err := db.Exec(ctx, `
 		update chainsight.evidence
 		set cid = $1, status = 'CID_READY', updated_at = now()
 		where id = $2::uuid and cid is null
-	`, cid, ev.ID); err != nil {
+	`, cid, ev.ID)
+	if err != nil {
 		_ = markPipelineFailed(ctx, db, ev.ID, err)
 		return fmt.Errorf("update evidence cid failed: %w", err)
+	}
+	if evidenceResult.RowsAffected() == 0 {
+		log.Printf("skip evidence_id=%s because cid already exists", ev.ID)
+		return nil
 	}
 
 	if err := appendHashLog(ctx, db, ev.ID, ev.Content, cid); err != nil {
@@ -314,6 +324,7 @@ func appendHashLog(ctx context.Context, db *pgx.Conn, evidenceID string, content
 	if _, err := db.Exec(ctx, `
 		insert into chainsight.append_only_hash_log (evidence_id, payload_hash, previous_hash, current_hash)
 		values ($1::uuid, $2, nullif($3, ''), $4)
+		on conflict (current_hash) do nothing
 	`, evidenceID, payloadHash, prev, currentHash); err != nil {
 		return fmt.Errorf("insert hash log failed: %w", err)
 	}
