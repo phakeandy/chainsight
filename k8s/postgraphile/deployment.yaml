@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: postgraphile
+  name: postgraphile
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgraphile
+  template:
+    metadata:
+      labels:
+        app: postgraphile
+    spec:
+      containers:
+      - image: graphile/postgraphile:4
+        name: "postgraphile"

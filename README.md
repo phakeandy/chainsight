@@ -1,87 +1,247 @@
-# ChainSight
+# ChainSight (链视)
 
-1.1. 项目名称: Chainsight (链视)
+> A PostgreSQL-centric, event-driven PoC for decentralized evidence anchoring and semantic propagation analysis.
 
-1.2. 项目愿景:
-构建一个技术验证原型（Proof of Concept），旨在融合人工智能与区块链技术，为互联网上的公开信息创建一个中立、透明、可追溯的“事实与传播元数据层”。本项目致力于探索一种全新的技术范式，以应对日益严峻的网络不实信息和谣言传播挑战。
+ChainSight 是一个技术验证原型（PoC），探索将 **内容寻址存储（IPFS）+ 钱包签名 + PostgreSQL 事件驱动架构 + GraphQL API** 结合，用于构建一个透明、可追溯的信息溯源系统。
 
-1.3. 核心目标用户 (PoC 阶段):
-项目评审方、技术研究者、对信息治理感兴趣的潜在合作伙伴。
+本项目运行于 **本地 Kubernetes 集群（k0s）**，不依赖真实链上部署即可完成完整演示。
 
-## 2. 功能需求 (Functional Requirements)
+## 1. 架构概览
 
-2.1. FR-01: 去中心化证据锚定 (Decentralized Evidence Anchoring)
+### 1.1 架构风格
 
 
-- 2.1.1. 描述:
-    系统必须允许用户手动复制并粘贴一段文本内容到指定的输入区域。系统会将提交的**核心证据（文本内容及相关元数据）存储在去中心化存储网络（IPFS）上**，并为该存储记录创建一个永久的、不可篡改的链上**指针**。
-- 2.1.2. 用户故事:
-  - 作为一名用户，当我看到一段可疑信息时，我希望能将其原文复制到系统中，系统就能为这段文字的**完整证据包**生成一个独一无二的、存储在 **IPFS** 上的记录，并把这个记录的"地址"写入区块链，以便任何人都可以**永久、抗审查地**访问和验证这份原始证据。
-- 2.1.3. 输入:
-  - 用户粘贴的纯文本字符串。
-- 2.1.4. 输出:
-  - **在 IPFS 上生成一个包含证据详情的 JSON 对象，并返回其唯一的内容哈希 (CID)。**
-  - 在区块链上生成一条新的存证记录，该记录必须包含：
-    - **证据在 IPFS 上的内容哈希 (CID)。**
-    - 提交者的数字身份地址。
-    - 精确到秒的存证时间戳。
-  - 前端界面需向用户反馈存证成功的确认信息。
+本项目采用：
 
-2.2. FR-02: 自动化内容分析与关联 (Automated Content Analysis & Correlation)
+* **Database-Centric Architecture**
+* **GraphQL façade（PostGraphile 自动生成）**
+* **Event-driven Worker（LISTEN / NOTIFY）**
+* **React SPA（无 SSR）**
 
-- 2.2.1. 描述:
-    对于每一份被提交的证据，系统必须自动触发一套后端分析流程。该流程包括对**证据中的文本内容**进行事实性评估，并在历史数据库中寻找与当前内容具有高度语义相似性的其他信息。
-- 2.2.2. 用户故事:
-  - 作为一名用户，我希望在我提交一段文字后，系统能自动告诉我，AI认为这段话有多大的可能是谣言，并且告诉我系统里是否已经存在过和它意思相近的旧信息。
-- 2.2.3. 流程:
-    1. 系统接收到用户提交的内容文本。
-    2. 调用外部智能服务，对文本进行事实性评估，产出一个分类标签（如："疑似谣言"、"信息待核实"、"未发现异常"）。
-    3. 系统将文本内容转换为一种可供比较的数学表示（语义向量）。
-    4. 在已存证的所有历史信息中，通过比较数学表示，检索出语义上高度相似的、且发布时间更早的信息条目。
-    5. 将第 2 步的评估结果和第 4 步检索到的关联信息（"语义父节点"），作为元数据记录到区块链上，并与原始存证记录**（通过其IPFS CID）**相关联。
-
-2.3. FR-03: 多维传播图谱可视化 (Multi-Dimensional Propagation Visualization)
-
-- 2.3.1. 描述:
-    系统必须提供一个可视化的界面，以图谱的形式展示信息之间的演化关系。当用户查询节点详情时，系统应能**从去中心化存储网络中拉取并展示原始证据**。
-- 2.3.2. 用户故事:
-  - 作为一名用户，我想在一个图上清晰地看到一条谣言是如何演变的...并且当我点击任何一个节点时，都能**直接看到当初被完整存证在 IPFS 上的原始文本和相关信息**。
-- 2.3.3. 界面要求:
-  - 必须以网络图（节点-连线图）的形式展示。
-  - 图谱必须能区分并用不同的视觉样式（如：实线 vs. 虚线）来表示两种关系：
-    - 直接传播关系: A 明确指向 B（在 PoC v1.0 中可模拟此关系，或作为未来功能）。
-    - 语义关联关系: B 的内容与早期的 A 高度相似。
-  - 图谱必须是可交互的，用户可以通过点击、悬停等操作查看节点的详细信息（**通过 IPFS CID 获取原文**、AI分析结果）。
-
-  - 图谱应具备动态布局能力，能自动整理节点位置，使其清晰易读。
-
-2.4. FR-04: 用户主权的交互模式 (User-Sovereign Interaction Model)
-
-- 2.4.1. 描述:
-    所有对区块链进行写入的操作，都必须经过用户的显式授权。系统不能在用户不知情或许可的情况下，代表用户向区块链提交数据。
-- 2.4.2. 用户故事:
-  - 作为一名用户，我希望每次向区块链上记录信息时，都能由我自己的数字钱包（而非平台）来最终确认，以确保记录的来源是我本人，且不可抵赖。
-- 2.4.3. 验收标准:
-  - 当用户执行任何写链操作时，必须触发一个标准的第三方钱包应用（如 MetaMask）的签名确认请求。
-  - 交易成功后，在任何公开的区块链浏览器上，该交易的发起方（`from`地址）都必须是用户的个人钱包地址。
-  - 系统不应包含任何传统的、基于用户名和密码的用户注册与登录功能。用户的身份完全由其个人的区块链钱包地址来定义和验证。
-
-## 3. 非功能性需求 (Non-Functional Requirements)
-
-3.1. NFR-01: 可演示性 (Demonstrability)
-
-- 整个系统必须能够在本地环境中流畅运行，并能支撑一个完整的、端到端的演示流程，时长不超过 5 分钟。
-
-3.2. NFR-02: 透明性 (Transparency)
-
-- 所有写入区块链的数据，其格式和含义都应该是公开可查的。用户应该能通过标准的区块链浏览器来验证系统记录的真实性。
-
-3.3. NFR-03: 模块化 (Modularity)
-
-- 系统的核心组件（用户界面、后端服务、区块链合约）应在逻辑上和物理上解耦，便于独立开发、测试和理解。
+数据库是系统的核心边界。
 
 
-3.4. NFR-04: 易用性 (Usability)
+### 1.2 系统结构
 
-- 虽然底层技术复杂，但用户界面应尽可能简洁直观，让非技术背景的用户也能理解其核心功能和价值。
+```mermaid
+graph LR
+    User[User Wallet]
+    React[React SPA]
+    GQL[PostGraphile]
+    PG[(PostgreSQL)]
+    Worker[Async Worker]
+    IPFS[IPFS Kubo]
+    AI[External AI Service]
 
+    User --> React
+    React -->|GraphQL| GQL
+    GQL -->|SQL| PG
+    PG -->|NOTIFY| Worker
+    Worker --> IPFS
+    Worker --> AI
+    Worker --> PG
+    React -->|Fetch CID| IPFS
+```
+
+## 2. 技术栈
+
+### 前端
+
+
+* React (Vite)
+* TypeScript
+* viem（钱包签名）
+* tanstack react query & https://the-guild.dev/graphql/codegen（GraphQL 客户端）
+* react-force-graph（图谱可视化）
+* zustand（状态管理）
+* shadcn (UI）
+
+无 SSR。
+
+
+### 后端
+
+* PostgreSQL 18 (注意，数据库不应该放到 Kubernetes 中，我在开发环境使用 apt 安装了)
+* PostGraphile 4 （GraphQL 自动生成）
+* pgvector（语义检索）
+* LISTEN / NOTIFY 事件驱动转发到 worker 当中
+* Kubernetes 部署以及开发
+
+
+
+### 异步处理
+
+* Worker（Go）
+
+* 监听 PostgreSQL 频道
+* 调用：
+
+  * IPFS HTTP API
+  * AI 服务
+  * 语义分析模块
+
+### 存储
+
+* IPFS (Kubo)
+* PostgreSQL
+
+* Append-only Hash Log（模拟“链上不可篡改”）
+
+### 运行环境
+
+* 本地 Kubernetes
+* kubectl
+* kustomize / 原生 YAML
+* Docker images
+
+## 3. 核心设计原则
+
+### 3.1 数据库是系统核心
+
+
+* 数据模型定义 API 形态
+* 权限控制可落在 PostgreSQL
+* GraphQL 自动从 schema 派生
+* 业务逻辑优先使用 SQL / function
+
+### 3.2 事件驱动而非同步 API 链式调用
+
+证据提交流程：
+
+1. React 调用 GraphQL mutation
+2. 数据写入 PostgreSQL
+3. Trigger 发出 NOTIFY
+4. Worker 异步处理：
+   * 上传 IPFS
+   * 调用 AI
+   * 生成 embedding
+   * 建立 semantic edges
+5. 状态回写数据库
+6. 前端查询更新结果
+
+### 3.3 “不上链但可验证”
+
+PoC 不进行真实链上部署。
+
+替代方案：
+
+* 用户对（CID + timestamp）进行钱包签名
+* 数据写入 append-only hash chain 表
+* 任意人可验证：
+
+  * 内容未篡改（CID）
+  * 记录顺序未篡改（hash chain）
+  * 提交者身份（签名校验）
+
+未来版本可替换为真实链上锚定。
+
+## 5. 功能流程
+
+
+### 5.1 FR-01: 去中心化证据锚定
+
+1. 用户粘贴文本
+
+2. 钱包签名
+3. GraphQL mutation 插入 evidence
+4. Worker 上传 JSON 至 IPFS
+5. 回填 CID
+6. 生成 append-only log 记录
+
+
+### 5.2 FR-02: 自动分析与关联
+
+Worker：
+
+* 调用 AI 分类
+* 生成 embedding
+* 查找语义相似条目
+* 插入 semantic edges
+
+### 5.3 FR-03: 图谱可视化
+
+前端：
+
+* 查询 evidence + edges
+* 生成网络图
+* 点击节点：
+
+  * 从 IPFS 拉原文
+  * 展示 AI 结果
+
+
+### 5.4 FR-04: 用户主权模型
+
+* 无用户名密码
+* 所有“写记录”操作都需钱包签名
+
+* 提交者地址存入数据库
+
+* 可独立验证签名
+
+## 6. 本地运行（Kubernetes）
+
+使用新的 gateway api 而不是使用 ingress。
+
+### 6.1 启动集群
+
+```bash
+k0s start
+kubectl get nodes
+```
+
+### 6.2 部署组件
+
+
+建议部署：
+
+
+* postgres (apt 安装)
+* postgraphile (Deployment)
+* ipfs (Deployment + PVC) 单节点即可，不需要复杂的集群
+* worker (Deployment)
+* frontend (不需要在 Kubernetes 中部署）
+* ingress (可选)
+
+## 7. 演示流程（< 5 分钟）
+
+
+1. 打开首页
+2. 连接钱包
+3. 粘贴文本
+4. 签名
+5. 显示“已存证”
+6. 切换到详情页
+7. 查看：
+   * CID
+   * AI 标签
+   * 相似节点
+8. 打开图谱视图
+9. 点击节点
+10. 验证 IPFS 原文
+
+## 8. 项目目标
+
+本 PoC 旨在验证：
+
+* 内容寻址 + 钱包签名
+* PostgreSQL 作为可信中心
+* 事件驱动数据流
+* GraphQL 自动 API 生成
+* 可扩展至真实链上部署
+
+
+## 9. 设计哲学总结
+
+ChainSight 不是一个传统三层 Web 应用。
+
+它是：
+
+> PostgreSQL as platform
+> GraphQL as façade
+> Worker as execution layer
+> React as visualization shell
+
+数据库定义系统边界。
+事件驱动实现异步解耦。
+签名与内容寻址保证可验证性。
