@@ -17,6 +17,7 @@ help:
 	@printf "  make db.up               Apply dbmate migrations\n"
 	@printf "  make db.new NAME=...     Create a new dbmate migration\n"
 	@printf "  make worker.run          Run worker locally with current env\n"
+	@printf "  make worker.image.load   Build worker image and import to k0s containerd\n"
 
 .PHONY: check.env
 check.env:
@@ -73,3 +74,7 @@ db.new:
 worker.run: check.db
 	@if [ -z "$(IPFS_API_URL)" ]; then echo "[FATAL] IPFS_API_URL is not set"; echo "        run: direnv allow"; exit 1; fi
 	@cd services/worker && DATABASE_URL='$(DATABASE_URL)' IPFS_API_URL='$(IPFS_API_URL)' PG_LISTEN_CHANNEL='$(PG_LISTEN_CHANNEL)' go run ./cmd/worker
+
+.PHONY: worker.image.load
+worker.image.load:
+	docker buildx build --platform linux/amd64 --output type=oci,dest=- -t chainsight-worker:dev ./services/worker | sudo k0s ctr --namespace k8s.io images import --all-platforms -

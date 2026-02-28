@@ -15,7 +15,8 @@ spec:
         app: worker
     spec:
       containers:
-        - image: phakeandy/chainsight-worker:dev
+        - image: chainsight-worker:dev
+          imagePullPolicy: IfNotPresent
           name: worker
           env:
             - name: DATABASE_URL
