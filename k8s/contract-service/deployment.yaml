@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: contract-service
+  name: contract-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: contract-service
+  template:
+    metadata:
+      labels:
+        app: contract-service
+    spec:
+      containers:
+        - image: phakeandy/contract-service:dev
+          name: contract-service
+          env:
+            - name: PORT
+              value: "8080"
+            - name: CHAIN_RPC_URL
+              valueFrom:
+                secretKeyRef:
+                  name: contract-service-secret
+                  key: CHAIN_RPC_URL
+            - name: EVIDENCE_ANCHOR_ADDRESS
+              valueFrom:
+                secretKeyRef:
+                  name: contract-service-secret
+                  key: EVIDENCE_ANCHOR_ADDRESS
+          ports:
+            - containerPort: 8080
+              name: http

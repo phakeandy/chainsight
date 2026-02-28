@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: contract-service
+  name: contract-service
+spec:
+  selector:
+    app: contract-service
+  ports:
+    - name: http
+      port: 8080
+      protocol: TCP
+      targetPort: http

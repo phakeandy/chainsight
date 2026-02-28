@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: ipfs
+  name: ipfs
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ipfs
+  template:
+    metadata:
+      labels:
+        app: ipfs
+    spec:
+      containers:
+        - image: ipfs/kubo:v0.28.0
+          name: ipfs
+          ports:
+            - containerPort: 4001
+              name: p2p
+            - containerPort: 5001
+              name: api
+            - containerPort: 8080
+              name: gateway
+          readinessProbe:
+            tcpSocket:
+              port: api
+            initialDelaySeconds: 5
+            periodSeconds: 10
