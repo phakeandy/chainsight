@@ -10,6 +10,46 @@ ChainSight 是一个技术验证原型（PoC），探索将 **内容寻址存储
 
 ### 1.1 架构风格
 
+```mermaid
+flowchart LR
+  %% Left: client -> graphql -> postgres (synchronous)
+  U([用户/客户端]) <-->|HTTP| G[GraphQL 服务]
+  G <-->|SQL| DB[(PostgreSQL)]
+
+  %% Right: DB trigger -> workers -> third-party (async)
+  DB <-->|trigger| TR[[触发器]]
+  TR --> W1[worker]
+  TR --> W2[worker]
+  TR --> W3[worker]
+  TR --> W4[worker]
+
+  W1 <--> TP{{第三方接口}}
+  W2 <--> TP
+  W3 <--> TP
+  W4 <--> TP
+
+  %% Brackets (visual grouping)
+  subgraph SYNC[同步]
+    direction LR
+    U
+    G
+    DB
+  end
+
+  subgraph ASYNC[异步]
+
+    direction LR
+    TR
+
+    W1
+    W2
+    W3
+    W4
+
+    TP
+  end
+```
+
 
 本项目采用：
 
@@ -62,6 +102,7 @@ graph LR
 ### 后端
 
 * PostgreSQL 18 (注意，数据库不应该放到 Kubernetes 中，我在开发环境使用 apt 安装了)
+* dbmate（数据库迁移管理，不手动维护 migration 版本表）
 * PostGraphile 4 （GraphQL 自动生成）
 * pgvector（语义检索）
 * LISTEN / NOTIFY 事件驱动转发到 worker 当中
@@ -193,7 +234,22 @@ kubectl get nodes
 ### 6.2 部署组件
 
 
-建议部署：
+先加载开发环境变量：
+
+```bash
+direnv allow
+```
+
+
+一键部署后端基础资源（postgraphile + contract-service）：
+
+```bash
+make k8s.apply
+```
+
+`make` 在启动阶段会先做依赖检查（数据库连通性、kube context 可用性）。若外部服务不可用会直接终止并给出原因。
+
+Kubernetes 资源统一部署在 `chainsight` namespace。
 
 
 * postgres (apt 安装)

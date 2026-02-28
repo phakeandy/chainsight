@@ -15,6 +15,21 @@ spec:
         app: contract-service
     spec:
       containers:
-      - image: phakeandy/contract-service:dev
-        name: "contract-service"
-
+        - image: phakeandy/contract-service:dev
+          name: contract-service
+          env:
+            - name: PORT
+              value: "8080"
+            - name: CHAIN_RPC_URL
+              valueFrom:
+                secretKeyRef:
+                  name: contract-service-secret
+                  key: CHAIN_RPC_URL
+            - name: EVIDENCE_ANCHOR_ADDRESS
+              valueFrom:
+                secretKeyRef:
+                  name: contract-service-secret
+                  key: EVIDENCE_ANCHOR_ADDRESS
+          ports:
+            - containerPort: 8080
+              name: http
