@@ -127,4 +127,6 @@ CREATE TRIGGER evidence_created_notify
 AFTER INSERT ON chainsight.evidence
 FOR EACH ROW
 EXECUTE FUNCTION chainsight.notify_evidence_created();
+
 -- migrate:down
+-- intentionally empty

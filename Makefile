@@ -1,5 +1,5 @@
 K8S_NAMESPACE ?= chainsight
-DBMATE = dbmate --migrations-dir db/migrations
+DBMATE = dbmate --migrations-dir db/migrations --migrations-table public.schema_migrations
 
 .PHONY: help
 help:
@@ -16,6 +16,7 @@ help:
 	@printf "  make db.status           Show dbmate migration status\n"
 	@printf "  make db.up               Apply dbmate migrations\n"
 	@printf "  make db.new NAME=...     Create a new dbmate migration\n"
+	@printf "  make worker.run          Run worker locally with current env\n"
 
 .PHONY: check.env
 check.env:
@@ -67,3 +68,8 @@ db.up: check.db
 db.new:
 	@if [ -z "$(NAME)" ]; then echo "Usage: make db.new NAME=create_table_xxx"; exit 1; fi
 	@$(DBMATE) new $(NAME)
+
+.PHONY: worker.run
+worker.run: check.db
+	@if [ -z "$(IPFS_API_URL)" ]; then echo "[FATAL] IPFS_API_URL is not set"; echo "        run: direnv allow"; exit 1; fi
+	@cd services/worker && DATABASE_URL='$(DATABASE_URL)' IPFS_API_URL='$(IPFS_API_URL)' PG_LISTEN_CHANNEL='$(PG_LISTEN_CHANNEL)' go run ./cmd/worker

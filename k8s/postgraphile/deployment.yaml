@@ -51,8 +51,7 @@ spec:
             - containerPort: 5000
               name: http
           readinessProbe:
-            httpGet:
-              path: /graphql
+            tcpSocket:
               port: http
             initialDelaySeconds: 5
             periodSeconds: 10

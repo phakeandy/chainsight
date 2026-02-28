@@ -1,0 +1,8 @@
+export DATABASE_URL='postgres://chainsight:123456789@127.0.0.1:5433/chainsight?sslmode=disable'
+export K8S_DATABASE_URL='postgresql://chainsight:123456789@172.20.197.3:5433/chainsight?sslmode=disable'
+
+export CHAIN_RPC_URL='http://hardhat:8545'
+export EVIDENCE_ANCHOR_ADDRESS='0x0000000000000000000000000000000000000000'
+
+export IPFS_API_URL='http://ipfs:5001/api/v0/add'
+export PG_LISTEN_CHANNEL='chainsight_evidence_created'

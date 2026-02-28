@@ -241,7 +241,7 @@ direnv allow
 ```
 
 
-一键部署后端基础资源（postgraphile + contract-service）：
+一键部署 Phase 1 基础资源（ipfs + postgraphile）：
 
 ```bash
 make k8s.apply
@@ -250,6 +250,12 @@ make k8s.apply
 `make` 在启动阶段会先做依赖检查（数据库连通性、kube context 可用性）。若外部服务不可用会直接终止并给出原因。
 
 Kubernetes 资源统一部署在 `chainsight` namespace。
+
+Phase 1 建议先本地运行 worker（避免镜像未发布导致拉取失败）：
+
+```bash
+make worker.run
+```
 
 
 * postgres (apt 安装)
