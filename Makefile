@@ -16,6 +16,7 @@ help:
 	@printf "  make db.status           Show dbmate migration status\n"
 	@printf "  make db.up               Apply dbmate migrations\n"
 	@printf "  make db.new NAME=...     Create a new dbmate migration\n"
+	@printf "  make phase2.smoke        Run Phase 2 smoke validation script\n"
 	@printf "  make worker.run          Run worker locally with current env\n"
 	@printf "  make worker.image.load   Build worker image and import to k0s containerd\n"
 
@@ -70,10 +71,16 @@ db.new:
 	@if [ -z "$(NAME)" ]; then echo "Usage: make db.new NAME=create_table_xxx"; exit 1; fi
 	@$(DBMATE) new $(NAME)
 
+.PHONY: phase2.smoke
+phase2.smoke: check.db
+	@if [ -z "$(OPENROUTER_APIKEY)" ]; then echo "[FATAL] OPENROUTER_APIKEY is not set"; echo "        run: direnv allow"; exit 1; fi
+	@bash ./scripts/phase2_smoke.sh
+
 .PHONY: worker.run
 worker.run: check.db
 	@if [ -z "$(IPFS_API_URL)" ]; then echo "[FATAL] IPFS_API_URL is not set"; echo "        run: direnv allow"; exit 1; fi
-	@cd services/worker && DATABASE_URL='$(DATABASE_URL)' IPFS_API_URL='$(IPFS_API_URL)' PG_LISTEN_CHANNEL='$(PG_LISTEN_CHANNEL)' go run ./cmd/worker
+	@if [ -z "$(OPENROUTER_APIKEY)" ]; then echo "[FATAL] OPENROUTER_APIKEY is not set"; echo "        run: direnv allow"; exit 1; fi
+	@cd services/worker && DATABASE_URL='$(DATABASE_URL)' IPFS_API_URL='$(IPFS_API_URL)' PG_LISTEN_CHANNEL='$(PG_LISTEN_CHANNEL)' OPENROUTER_APIKEY='$(OPENROUTER_APIKEY)' OPENROUTER_BASE_URL='$(OPENROUTER_BASE_URL)' OPENROUTER_CHAT_MODEL='$(OPENROUTER_CHAT_MODEL)' OPENROUTER_EMBED_MODEL='$(OPENROUTER_EMBED_MODEL)' EMBEDDING_DIM='$(EMBEDDING_DIM)' SIMILARITY_TOP_K='$(SIMILARITY_TOP_K)' SIMILARITY_THRESHOLD='$(SIMILARITY_THRESHOLD)' go run ./cmd/worker
 
 .PHONY: worker.image.load
 worker.image.load:

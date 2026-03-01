@@ -23,3 +23,9 @@ make db.status
 make db.up
 make db.new NAME=add_example_table
 ```
+
+## Phase 2 Graph 查询函数
+
+- `chainsight.graph_nodes(limit_count)`
+- `chainsight.graph_edges(limit_count, min_score)`
+- `chainsight.graph_node_detail(node_id)`

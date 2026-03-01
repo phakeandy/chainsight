@@ -210,6 +210,12 @@ Worker：
   * 从 IPFS 拉原文
   * 展示 AI 结果
 
+为前端图谱查询预留了数据库函数（可由 PostGraphile 直接暴露）：
+
+* `chainsight.graph_nodes(limit_count)`
+* `chainsight.graph_edges(limit_count, min_score)`
+* `chainsight.graph_node_detail(node_id)`
+
 
 ### 5.4 FR-04: 用户主权模型
 
@@ -251,10 +257,19 @@ make k8s.apply
 
 Kubernetes 资源统一部署在 `chainsight` namespace。
 
-Phase 1 建议先本地运行 worker（避免镜像未发布导致拉取失败）：
+Phase 2 建议先本地运行 worker（避免镜像未发布导致拉取失败）：
 
 ```bash
 make worker.run
+```
+
+运行前请确保已配置 `OPENROUTER_APIKEY`（见 `.envrc.example`），否则 worker 会在启动时快速失败。
+若数据库未安装 pgvector，worker 会自动使用 Go 侧 cosine fallback（可用但性能较低）。
+
+可执行 Phase 2 冒烟脚本（需要 worker 正在运行）：
+
+```bash
+make phase2.smoke
 ```
 
 

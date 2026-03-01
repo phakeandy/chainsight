@@ -34,3 +34,38 @@ spec:
                 secretKeyRef:
                   name: worker-secret
                   key: PG_LISTEN_CHANNEL
+            - name: OPENROUTER_APIKEY
+              valueFrom:
+                secretKeyRef:
+                  name: worker-secret
+                  key: OPENROUTER_APIKEY
+            - name: OPENROUTER_BASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: worker-secret
+                  key: OPENROUTER_BASE_URL
+            - name: OPENROUTER_CHAT_MODEL
+              valueFrom:
+                secretKeyRef:
+                  name: worker-secret
+                  key: OPENROUTER_CHAT_MODEL
+            - name: OPENROUTER_EMBED_MODEL
+              valueFrom:
+                secretKeyRef:
+                  name: worker-secret
+                  key: OPENROUTER_EMBED_MODEL
+            - name: EMBEDDING_DIM
+              valueFrom:
+                secretKeyRef:
+                  name: worker-secret
+                  key: EMBEDDING_DIM
+            - name: SIMILARITY_TOP_K
+              valueFrom:
+                secretKeyRef:
+                  name: worker-secret
+                  key: SIMILARITY_TOP_K
+            - name: SIMILARITY_THRESHOLD
+              valueFrom:
+                secretKeyRef:
+                  name: worker-secret
+                  key: SIMILARITY_THRESHOLD
