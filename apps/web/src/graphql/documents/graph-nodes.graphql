@@ -1,0 +1,14 @@
+query GraphNodes($limitCount: Int = 200) {
+  graphNodes(limitCount: $limitCount, first: $limitCount) {
+    nodes {
+      id
+      cid
+      status
+      aiLabel
+      aiSummary
+      submitterAddress
+      createdAt
+      anchoredAt
+    }
+  }
+}

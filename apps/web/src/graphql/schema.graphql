@@ -1,0 +1,133 @@
+scalar UUID
+scalar BigInt
+scalar Datetime
+scalar Cursor
+
+enum EvidenceStatus {
+  PENDING_UPLOAD
+  CID_READY
+  ANCHORED
+  ANALYZED
+  FAILED
+}
+
+type Evidence {
+  id: UUID!
+  content: String!
+  submitterAddress: String!
+  submitterSignature: String!
+  cid: String
+  status: EvidenceStatus!
+  aiLabel: String
+  aiSummary: String
+  createdAt: Datetime!
+  anchoredAt: Datetime
+}
+
+type AnchorTx {
+  id: BigInt!
+  evidenceId: UUID!
+  chainId: BigInt!
+  contractAddress: String!
+  txHash: String!
+  onchainEvidenceId: BigInt
+  senderAddress: String!
+  createdAt: Datetime!
+  confirmedAt: Datetime
+}
+
+type GraphNode {
+  id: UUID!
+  cid: String
+  status: EvidenceStatus!
+  aiLabel: String
+  aiSummary: String
+  createdAt: Datetime!
+  anchoredAt: Datetime
+  submitterAddress: String!
+}
+
+type GraphEdge {
+  id: BigInt!
+  sourceEvidenceId: UUID!
+  targetEvidenceId: UUID!
+  score: Float!
+  edgeType: String!
+  createdAt: Datetime!
+  sourceCid: String
+  targetCid: String
+  sourceAiLabel: String
+  targetAiLabel: String
+}
+
+type GraphNodeDetail {
+  id: UUID!
+  cid: String
+  status: EvidenceStatus!
+  aiLabel: String
+  aiSummary: String
+  content: String!
+  submitterAddress: String!
+  createdAt: Datetime!
+  anchoredAt: Datetime
+  outgoingSemanticEdges: BigInt!
+  incomingSemanticEdges: BigInt!
+}
+
+type GraphNodesConnection {
+  nodes: [GraphNode]!
+}
+
+type GraphEdgesConnection {
+  nodes: [GraphEdge]!
+}
+
+type GraphNodeDetailConnection {
+  nodes: [GraphNodeDetail]!
+}
+
+input SubmitEvidenceInput {
+  content: String!
+  submitterAddress: String!
+  submitterSignature: String!
+  clientMutationId: String
+}
+
+type SubmitEvidencePayload {
+  evidence: Evidence
+  clientMutationId: String
+}
+
+input RecordAnchorTxInput {
+  evidenceId: UUID!
+  chainId: BigInt!
+  contractAddress: String!
+  txHash: String!
+  senderAddress: String!
+  onchainEvidenceId: BigInt
+  clientMutationId: String
+}
+
+type RecordAnchorTxPayload {
+  anchorTx: AnchorTx
+  clientMutationId: String
+}
+
+type Query {
+  graphNodes(limitCount: Int = 200, first: Int, last: Int, offset: Int, before: Cursor, after: Cursor): GraphNodesConnection
+  graphEdges(
+    limitCount: Int = 1000
+    minScore: Float = 0
+    first: Int
+    last: Int
+    offset: Int
+    before: Cursor
+    after: Cursor
+  ): GraphEdgesConnection
+  graphNodeDetail(nodeId: UUID, first: Int, last: Int, offset: Int, before: Cursor, after: Cursor): GraphNodeDetailConnection
+}
+
+type Mutation {
+  submitEvidence(input: SubmitEvidenceInput!): SubmitEvidencePayload
+  recordAnchorTx(input: RecordAnchorTxInput!): RecordAnchorTxPayload
+}

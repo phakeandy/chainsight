@@ -19,6 +19,8 @@ help:
 	@printf "  make phase2.smoke        Run Phase 2 smoke validation script\n"
 	@printf "  make worker.run          Run worker locally with current env\n"
 	@printf "  make worker.image.load   Build worker image and import to k0s containerd\n"
+	@printf "  make hardhat.image.load  Build hardhat image and import to k0s containerd\n"
+	@printf "  make frontend.port-forward  Port-forward frontend dependencies (GraphQL/IPFS[/Hardhat])\n"
 
 .PHONY: check.env
 check.env:
@@ -85,3 +87,45 @@ worker.run: check.db
 .PHONY: worker.image.load
 worker.image.load:
 	docker buildx build --platform linux/amd64 --output type=oci,dest=- -t chainsight-worker:dev ./services/worker | sudo k0s ctr --namespace k8s.io images import --all-platforms -
+
+.PHONY: hardhat.image.load
+hardhat.image.load:
+	docker buildx build --platform linux/amd64 --output type=oci,dest=- -t chainsight-hardhat:dev ./contracts | sudo k0s ctr --namespace k8s.io images import --all-platforms -
+
+.PHONY: frontend.port-forward
+frontend.port-forward: check.k8s
+	@set -eu; \
+	PIDS=""; \
+	CLEANED=0; \
+	start_pf() { \
+		RESOURCE="$$1"; \
+		MAPPING="$$2"; \
+		NAME="$$3"; \
+		echo "[INFO] forwarding $$NAME ($(K8S_NAMESPACE):$$RESOURCE $$MAPPING)"; \
+		kubectl -n '$(K8S_NAMESPACE)' port-forward "$$RESOURCE" "$$MAPPING" >/dev/null 2>&1 & \
+		PIDS="$$PIDS $$!"; \
+	}; \
+	cleanup() { \
+		if [ "$$CLEANED" -eq 1 ]; then \
+			return; \
+		fi; \
+		CLEANED=1; \
+		echo ""; \
+		echo "[INFO] stopping port-forwards"; \
+		if [ -n "$$PIDS" ]; then \
+			kill $$PIDS >/dev/null 2>&1 || true; \
+			wait $$PIDS >/dev/null 2>&1 || true; \
+		fi; \
+	}; \
+	trap cleanup INT TERM EXIT; \
+	start_pf svc/postgraphile 5000:5000 postgraphile; \
+	start_pf svc/ipfs 18080:8080 ipfs-gateway; \
+	start_pf svc/ipfs 5001:5001 ipfs-api; \
+	if kubectl -n '$(K8S_NAMESPACE)' get svc hardhat >/dev/null 2>&1; then \
+		start_pf svc/hardhat 8545:8545 hardhat-rpc; \
+	else \
+		echo "[WARN] svc/hardhat not found in namespace $(K8S_NAMESPACE); 8545 not forwarded"; \
+	fi; \
+	echo "[OK] forwards ready: 5000(GraphQL), 18080(IPFS gateway), 5001(IPFS API), 8545(optional Hardhat)"; \
+	echo "[INFO] keep this command running; press Ctrl+C to stop all forwards"; \
+	wait

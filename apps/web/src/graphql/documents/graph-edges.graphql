@@ -1,0 +1,16 @@
+query GraphEdges($limitCount: Int = 1000, $minScore: Float = 0) {
+  graphEdges(limitCount: $limitCount, minScore: $minScore, first: $limitCount) {
+    nodes {
+      id
+      sourceEvidenceId
+      targetEvidenceId
+      score
+      edgeType
+      createdAt
+      sourceCid
+      targetCid
+      sourceAiLabel
+      targetAiLabel
+    }
+  }
+}

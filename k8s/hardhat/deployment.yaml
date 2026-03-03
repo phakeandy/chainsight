@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: hardhat
+  name: hardhat
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hardhat
+  template:
+    metadata:
+      labels:
+        app: hardhat
+    spec:
+      containers:
+        - image: chainsight-hardhat:dev
+          imagePullPolicy: IfNotPresent
+          name: hardhat
+          ports:
+            - containerPort: 8545
+              name: rpc
+          readinessProbe:
+            tcpSocket:
+              port: rpc
+            initialDelaySeconds: 5
+            periodSeconds: 10
