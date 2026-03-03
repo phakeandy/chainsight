@@ -45,6 +45,7 @@ spec:
             - --schema
             - chainsight,public
             - --dynamic-json
+            - --cors
           env:
             - name: DATABASE_URL
               valueFrom:

@@ -1,0 +1,17 @@
+query GraphNodeDetail($nodeId: UUID!) {
+  graphNodeDetail(nodeId: $nodeId, first: 1) {
+    nodes {
+      id
+      cid
+      status
+      aiLabel
+      aiSummary
+      content
+      submitterAddress
+      createdAt
+      anchoredAt
+      outgoingSemanticEdges
+      incomingSemanticEdges
+    }
+  }
+}

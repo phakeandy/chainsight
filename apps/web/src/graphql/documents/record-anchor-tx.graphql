@@ -1,0 +1,30 @@
+mutation RecordAnchorTx(
+  $evidenceId: UUID!
+  $chainId: BigInt!
+  $contractAddress: String!
+  $txHash: String!
+  $senderAddress: String!
+  $onchainEvidenceId: BigInt
+) {
+  recordAnchorTx(
+    input: {
+      evidenceId: $evidenceId
+      chainId: $chainId
+      contractAddress: $contractAddress
+      txHash: $txHash
+      senderAddress: $senderAddress
+      onchainEvidenceId: $onchainEvidenceId
+    }
+  ) {
+    anchorTx {
+      id
+      evidenceId
+      txHash
+      chainId
+      senderAddress
+      onchainEvidenceId
+      contractAddress
+      confirmedAt
+    }
+  }
+}

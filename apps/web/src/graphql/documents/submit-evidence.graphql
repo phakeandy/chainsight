@@ -1,0 +1,16 @@
+mutation SubmitEvidence($content: String!, $submitterAddress: String!, $submitterSignature: String!) {
+  submitEvidence(input: { content: $content, submitterAddress: $submitterAddress, submitterSignature: $submitterSignature }) {
+    evidence {
+      id
+      cid
+      status
+      submitterAddress
+      submitterSignature
+      content
+      aiLabel
+      aiSummary
+      createdAt
+      anchoredAt
+    }
+  }
+}

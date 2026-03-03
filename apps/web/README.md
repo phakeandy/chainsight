@@ -1,5 +1,32 @@
 # apps/web
 
-React SPA（Vite）入口目录。
+ChainSight frontend SPA for Phase 3.
 
-Phase 0 仅保留目录骨架，Phase 1 开始实现钱包连接、证据提交与 GraphQL 查询。
+## Stack
+
+- React + Vite (SPA, no SSR)
+- TanStack Router (file-based routes)
+- TanStack Query
+- GraphQL Code Generator
+- viem (wallet connect / sign / send tx)
+- react-force-graph-2d
+- shadcn-style primitives (black/white default)
+
+## Routes
+
+- `/submit` - submit evidence with wallet signature
+- `/evidence/:evidenceId` - evidence detail, IPFS content, analysis, anchor action
+- `/graph` - propagation graph view
+
+## Setup
+
+1. Copy `.env.example` to `.env` and set values.
+2. Install dependencies: `pnpm install`
+3. Generate GraphQL types: `pnpm codegen`
+4. Start dev server: `pnpm dev`
+
+If you have a running PostGraphile endpoint, codegen can use it by overriding:
+
+```bash
+GRAPHQL_SCHEMA=http://127.0.0.1:5000/graphql pnpm codegen
+```
