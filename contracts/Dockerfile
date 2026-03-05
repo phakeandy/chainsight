@@ -7,7 +7,7 @@ RUN corepack enable
 
 WORKDIR /app
 
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.json hardhat.config.ts ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.json hardhat.config.js ./
 COPY contracts ./contracts
 COPY ignition ./ignition
 COPY scripts ./scripts
