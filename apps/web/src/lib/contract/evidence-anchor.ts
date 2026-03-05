@@ -4,10 +4,21 @@ import {
   http,
   parseAbi,
   type Address,
+  type Chain,
   type WalletClient,
 } from 'viem'
 
 import { env } from '../env'
+
+const hardhatChain: Chain = {
+  id: 31337,
+  name: 'Hardhat',
+  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  rpcUrls: {
+    default: { http: [env.chainRpcUrl] },
+    public: { http: [env.chainRpcUrl] },
+  },
+}
 
 const evidenceAnchorAbi = parseAbi([
   'function anchorEvidence(string _ipfsCid) returns (uint256 evidenceId)',
@@ -29,7 +40,7 @@ export async function anchorEvidenceCid(
   const chainId = await walletClient.getChainId()
   const txHash = await walletClient.writeContract({
     account,
-    chain: undefined,
+    chain: hardhatChain,
     address: contractAddress,
     abi: evidenceAnchorAbi,
     functionName: 'anchorEvidence',
